@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import axios from 'axios';
 const AuthContext = React.createContext()
 export const AuthConsumer = AuthContext.Consumer
-
 class AuthProvider extends Component {
   state = { user: null }
   handleRegister = (user, history) => {
@@ -15,7 +14,6 @@ class AuthProvider extends Component {
         console.log(err)
       })
   }
-
   handleLogin = (user, history) => {
     axios.post('/api/auth/sign_in', user)
       .then( res => {
@@ -26,7 +24,6 @@ class AuthProvider extends Component {
         console.log(err)
       })
   }
-
   handleLogout = (history) => {
     axios.delete('/api/auth/sign_out')
       .then( res => {
@@ -37,7 +34,12 @@ class AuthProvider extends Component {
         console.log(err)
       })
   }
-
+  updateUser = (id, user) => { 
+    let data = new FormData() 
+    data.append('file', user.file)
+    axios.put(`/api/users/${id}?name=${user.name}&email=${user.email}`, data)
+      .then( res => this.setState({ user: res.data }))
+  }
   render() {
     return(
       <AuthContext.Provider value={{
@@ -46,12 +48,12 @@ class AuthProvider extends Component {
         handleLogin: this.handleLogin,
         handleLogout: this.handleLogout,
         authenticated: this.state.user !== null,
-        setUser: (user) => this.setState({ user })
+        setUser: (user) => this.setState({ user }),
+        updateUser: this.updateUser
       }}>
         { this.props.children }
       </AuthContext.Provider>
     )
   }
 }
-
-export default AuthProvider;
+export default AuthProvider
